@@ -1,3 +1,13 @@
+- [qrc-gen-email](#qrc-gen-email)
+  - [About](#about)
+  - [How it works](#how-it-works)
+  - [About env.json](#about-envjson)
+    - [Variables](#variables)
+      - [Table of variables](#table-of-variables)
+      - [Example with all variables](#example-with-all-variables)
+      - [Example with empty **subject**](#example-with-empty-subject)
+
+
 # qrc-gen-email
 
 Email qr-code console generator.

@@ -67,3 +67,22 @@ func QRCodeGenerate(qrdata QRCode) (string, string) {
 
 	return qrCodeFilePath, tmpDir
 }
+
+func QRCodeGenerateEmail(qrdata string, qrCodeFilePath string, qrCodeSize int) {
+
+	// png, err := qrcode.Encode(QRCodeGenerateData(), qrcode.Medium, 256)
+	// tmpDir_path := "./data/out/"
+	// tmpDir_path := "/tmp/"
+	// tmpDir, _ := os.MkdirTemp(tmpDir_path, "QR")
+	// Wrire error check
+	// qrCodeFilePath := "./qrc-email.png"
+
+	err := qrcode.WriteFile(qrdata, qrcode.Medium, qrCodeSize, qrCodeFilePath)
+	if err != nil {
+		// Rewrite error check
+		log.Printf("Error generating QR code: %v", err)
+	}
+	log.Printf("QR Code saved to: %v", qrCodeFilePath)
+
+	// return qrCodeFilePath, tmpDir
+}

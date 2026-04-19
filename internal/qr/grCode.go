@@ -86,3 +86,22 @@ func QRCodeGenerateEmail(qrdata string, qrCodeFilePath string, qrCodeSize int) {
 
 	// return qrCodeFilePath, tmpDir
 }
+
+func QRCodeGenerateEmailInMemory(qrdata string, qrCodeSize int) ([]byte, error) {
+
+	// png, err := qrcode.Encode(QRCodeGenerateData(), qrcode.Medium, 256)
+	// tmpDir_path := "./data/out/"
+	// tmpDir_path := "/tmp/"
+	// tmpDir, _ := os.MkdirTemp(tmpDir_path, "QR")
+	// Wrire error check
+	// qrCodeFilePath := "./qrc-email.png"
+	png, err := qrcode.Encode(qrdata, qrcode.Medium, qrCodeSize)
+	// err := qrcode.WriteFile(qrdata, qrcode.Medium, qrCodeSize, qrCodeFilePath)
+	if err != nil {
+		// Rewrite error check
+		log.Printf("Error generating QR code: %v", err)
+	}
+	log.Printf("QR Code generated in memory with size: %d bytes", len(png))
+
+	return png, err
+}

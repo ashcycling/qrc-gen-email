@@ -1,3 +1,7 @@
+# qrc-gen-email
+
+Email qr-code console generator.
+
 - [qrc-gen-email](#qrc-gen-email)
   - [About](#about)
   - [How it works](#how-it-works)
@@ -6,11 +10,6 @@
       - [Table of variables](#table-of-variables)
       - [Example with all variables](#example-with-all-variables)
       - [Example with empty **subject**](#example-with-empty-subject)
-
-
-# qrc-gen-email
-
-Email qr-code console generator.
 
 ## About
 
@@ -40,7 +39,7 @@ It generates a email qrcode in the **.png** format based on a **env.json** file.
 #### Table of variables
 
 | Key | Value Type | Mandatory |
-|-----|------------|-----------|
+| ----- | ------------ | ----------- |
 | **qrcSize** | int | Yes |
 | **mailto** | string | Yes |
 | **subject** | string | Yes, can be empty |

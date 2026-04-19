@@ -1,0 +1,24 @@
+name: Install GitHub DinD Runner
+run-name: ${{ github.actor }} is installing GitHub DinD Runner in ${{ github.ref_name }} 🚀
+on: [workflow_dispatch]
+# on:
+#   push:
+#     branches:
+#       - main
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v5
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }} 
+      - name: Display kubectl version
+        uses: tale/kubectl-action@v1
+        with:
+          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+      - run: |
+          kubectl create namespace github-runner-qrc-gen-email || true
+          kubectl create secret -n github-runner-qrc-gen-email generic github-runner-secret --from-literal=REPO="${{ github.repository }}" --from-literal=TOKEN="${{ secrets.TOKEN_PKG }}" || true
+          kubectl apply -f deployment/GitHubRunner/deployment-dind.yaml

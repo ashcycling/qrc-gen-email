@@ -3,16 +3,33 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 )
 
 func main() {
 	port := flag.String("port", ":3000", "Port to serve frontend on (e.g., :3000)")
-	backendURL := flag.String("backend", "http://localhost:8080", "Backend API URL")
+	backendURL := flag.String("backend", "", "Backend API URL (overrides env vars)")
 	flag.Parse()
+
+	// If backend URL not provided via flag, construct from environment variables
+	if *backendURL == "" {
+		backendHost := os.Getenv("BACKEND_HOST")
+		if backendHost == "" {
+			backendHost = "localhost"
+		}
+		backendPort := os.Getenv("BACKEND_PORT")
+		if backendPort == "" {
+			backendPort = "8080"
+		}
+		*backendURL = fmt.Sprintf("http://%s:%s", backendHost, backendPort)
+	}
+
+	log.Printf("Frontend connecting to backend at: %s", *backendURL)
 
 	// Serve static files
 	staticDir := filepath.Join(".", "cmd", "frontend", "static")

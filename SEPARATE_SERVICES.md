@@ -62,7 +62,7 @@ Example:
 
 ## File Structure
 
-```
+```bash
 cmd/
 ├── backend/
 │   ├── main.go          # Backend API server

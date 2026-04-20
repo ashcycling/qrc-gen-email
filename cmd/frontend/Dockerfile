@@ -17,4 +17,5 @@ FROM gcr.io/distroless/cc-debian13
 LABEL org.opencontainers.image.source="https://github.com/ashcycling/qrc-gen-email"
 
 COPY --from=build /go/bin/frontend /
+COPY --from=build /go/src/app/cmd/frontend/static ./cmd/frontend/static
 CMD ["/frontend"]

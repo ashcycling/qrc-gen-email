@@ -28,23 +28,24 @@ kind: Ingress
 metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
+    kubernetes.io/ingress.class: traefik
   labels:
     app: qrc-gen-front
   name: qrc-gen-front-ingress
   namespace: qrc-gen-email
 spec:
-  ingressClassName: traefik
+  # ingressClassName: traefik # Use the name of your IngressClass here
   rules:
   - host: qrc-gen.46.224.32.20.nip.io
     http:
       paths:
-      - path: /
-        pathType: Prefix
-        backend:
+      - backend:
           service:
             name: qrc-gen-front-service
             port:
               number: 3000
+        path: /
+        pathType: ImplementationSpecific
   tls:
   - hosts:
     - qrc-gen.46.224.32.20.nip.io # Change by your domain
@@ -77,53 +78,6 @@ spec:
             value: "qrc-gen-back-service.qrc-gen.svc.cluster.local"
           - name: BACKEND_PORT
             value: "8080"
-          resources:
-            requests:
-              memory: "15Mi"
-              cpu: "25m"
-            limits:
-              memory: "50Mi"
-              cpu: "500m"
----
-apiVersion: v1
-kind: Service
-metadata:
-  namespace: qrc-gen-email
-  name: qrc-gen-back-service
-  labels:
-    app: qrc-gen-back-service
-spec:
-  type: ClusterIP
-  ports:
-    - name: http
-      targetPort: 8080
-      port: 8080
-      protocol: TCP
-  selector:
-    app: qrc-gen-back
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  namespace: qrc-gen-email
-  name: qrc-gen-back
-  labels:
-    app: qrc-gen-back
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: qrc-gen-back
-  template:
-    metadata:
-      name: back
-      labels:
-        app: qrc-gen-back
-    spec:
-      containers:
-        - name: back
-          image: ghcr.io/ashcycling/backend:v0.0.1
-          imagePullPolicy: Always
           resources:
             requests:
               memory: "15Mi"

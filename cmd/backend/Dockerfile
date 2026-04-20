@@ -14,7 +14,7 @@ RUN go build -o /go/bin/backend ./cmd/backend/backend.go
 
 FROM gcr.io/distroless/cc-debian13
 
-LABEL org.opencontainers.image.source=https://github.com/ashcycling/qrc-gen-email
+LABEL org.opencontainers.image.source="https://github.com/ashcycling/qrc-gen-email"
 
 COPY --from=build /go/bin/backend /
 CMD ["/backend"]

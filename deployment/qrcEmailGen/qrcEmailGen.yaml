@@ -1,0 +1,70 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: logs
+  labels:
+    name: logs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: logs
+  name: vlogs-service
+  labels:
+    app: vlogs-service
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      targetPort: 9428
+      port: 9428
+      protocol: TCP
+  selector:
+    app: vlogs
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: vlogs
+  name: vlogs-ingress
+  namespace: logs
+spec:
+  ingressClassName: traefik # Use the name of your IngressClass here
+  rules:
+  - host: vlogs.46.224.32.20.nip.io
+    http:
+      paths:
+      - backend:
+          service:
+            name: vlogs-service
+            port:
+              number: 9428
+        path: /
+        pathType: ImplementationSpecific
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: logs
+  name: vlogs
+  labels:
+    app: vlogs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vlogs
+  template:
+    metadata:
+      name: vlogs
+      labels:
+        app: vlogs
+    spec:
+      containers:
+        - name: vlogs
+          image: victoriametrics/victoria-logs:latest
+          args:
+            - "-httpAuth.username=admin"
+            - "-httpAuth.password=12345678"

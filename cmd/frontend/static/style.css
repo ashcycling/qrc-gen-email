@@ -1,0 +1,359 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+    max-width: 600px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 16px;
+}
+
+h1 {
+    color: #333;
+    margin: 0 0 12px 0;
+    text-align: center;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    font-weight: 700;
+}
+
+h2 {
+    color: #555;
+    margin: 10px 0 8px 0;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 6px;
+    flex-shrink: 0;
+    font-weight: 600;
+}
+
+.form-section,
+.response-section {
+    flex-shrink: 0;
+    margin-bottom: 12px;
+}
+
+.form-section {
+    background: linear-gradient(135deg, #f0f4ff 0%, #f9f5ff 100%);
+    padding: 20px;
+    border-radius: 12px;
+    border: 2px solid #667eea;
+}
+
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"] {
+    height: 48px;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+textarea {
+    resize: none;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 12px;
+    flex-shrink: 0;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-submit:hover {
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+.btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.response-display {
+    background: #f9f9f9;
+    padding: 16px;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+    min-height: 60px;
+    max-height: 400px;
+    flex-shrink: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    word-break: break-word;
+}
+
+.qr-code-image {
+    max-width: 280px;
+    max-height: 280px;
+    border-radius: 8px;
+    border: 2px solid #667eea;
+    margin-bottom: 12px;
+}
+
+#responseText {
+    color: #666;
+    font-size: 0.85rem;
+    font-family: inherit;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.loading {
+    color: #667eea;
+}
+
+.success {
+    color: #27ae60;
+}
+
+.error {
+    color: #e74c3c;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Mobile - Small phones (320px - 480px) */
+@media (max-width: 480px) {
+    .container {
+        padding: 12px;
+        border-radius: 8px;
+        margin: 8px;
+    }
+
+    h1 {
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+    }
+
+    h2 {
+        font-size: 0.95rem;
+        margin: 8px 0 6px 0;
+        padding-bottom: 4px;
+    }
+
+    label {
+        font-size: 0.8rem;
+        margin-bottom: 2px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    textarea {
+        font-size: 0.8rem;
+        padding: 6px 8px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"] {
+        height: 32px;
+    }
+
+    .btn-submit {
+        font-size: 0.85rem;
+        height: 36px;
+        padding: 7px;
+        margin-top: 4px;
+    }
+
+    .config-display {
+        font-size: 0.7rem;
+        padding: 8px;
+        max-height: 40px;
+    }
+
+    .response-display {
+        font-size: 0.7rem;
+        max-height: 60px;
+        padding: 8px;
+    }
+
+    #responseText {
+        font-size: 0.7rem;
+    }
+
+    .config-section,
+    .form-section,
+    .response-section {
+        margin-bottom: 6px;
+    }
+
+    .form-group {
+        margin-bottom: 6px;
+    }
+}
+
+/* Tablet (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .container {
+        padding: 14px;
+        max-width: 550px;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+        margin-bottom: 11px;
+    }
+
+    h2 {
+        font-size: 1.05rem;
+        margin: 9px 0 7px 0;
+    }
+
+    label {
+        font-size: 0.85rem;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    textarea {
+        font-size: 0.85rem;
+        padding: 6px 9px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"] {
+        height: 34px;
+    }
+
+    .btn-submit {
+        font-size: 0.9rem;
+        height: 38px;
+        padding: 8px;
+    }
+}
+
+/* Desktop (769px and above) */
+@media (min-width: 769px) {
+    .container {
+        padding: 16px;
+        max-width: 600px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 12px;
+    }
+
+    h2 {
+        font-size: 1.1rem;
+        margin: 10px 0 8px 0;
+    }
+
+    label {
+        font-size: 0.9rem;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    textarea {
+        font-size: 0.9rem;
+        padding: 7px 10px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"] {
+        height: 36px;
+    }
+
+    .btn-submit {
+        font-size: 0.95rem;
+        height: 40px;
+        padding: 9px;
+    }
+
+    .btn-submit:hover {
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+}
+
+/* Ensure form section content fits */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}

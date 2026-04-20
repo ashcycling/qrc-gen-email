@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRC Email Generator</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Email Generator</h1>
+        
+        <div class="form-section">
+            <h2>Generate Configuration</h2>
+            <form id="qrcForm">
+                <div class="form-group">
+                    <label for="qrcSize">QR Code Size:</label>
+                    <input type="number" id="qrcSize" name="qrcSize" min="100" max="1000" placeholder="256">
+                </div>
+
+                <div class="form-group">
+                    <label for="mailto">Email Address:</label>
+                    <input type="email" id="mailto" name="mailto" placeholder="example@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">Email Subject:</label>
+                    <input type="text" id="subject" name="subject" placeholder="Optional subject. Default is Empty">
+                </div>
+
+                <button type="submit" class="btn-submit">Generate & Send</button>
+            </form>
+        </div>
+
+        <div class="response-section">
+            <h2>Response</h2>
+            <div id="responseDisplay" class="response-display">
+                <div id="qrCodeContainer" style="display:none;">
+                    <img id="qrCodeImage" src="" alt="Generated QR Code" class="qr-code-image">
+                </div>
+                <p id="responseText">No response yet</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

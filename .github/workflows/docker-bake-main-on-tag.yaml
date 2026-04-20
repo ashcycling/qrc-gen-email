@@ -27,5 +27,5 @@ jobs:
             push: true
             # targets: all
             set: |
-              backend.tags=ghcr.io/${{ github.repository_owner }}/backend:${{ github.ref_name }}
-              frontend.tags=ghcr.io/${{ github.repository_owner }}/frontend:${{ github.ref_name }}
+              backend.tags=ghcr.io/${{ github.repository_owner }}/qrc-gen-email/backend:${{ github.ref_name }}
+              frontend.tags=ghcr.io/${{ github.repository_owner }}/qrc-gen-email/frontend:${{ github.ref_name }}

@@ -125,12 +125,41 @@
         }
     }
 
+    /**
+     * iOS Safari auto-zooms into form fields whose font-size is below 16px on
+     * focus, but never restores the zoom on blur. We want both directions to
+     * feel automatic, so when an input loses focus we briefly switch the
+     * viewport meta to maximum-scale=1 (which forces iOS to clamp the zoom
+     * back to 1.0), then restore the original viewport on the next frame so
+     * the user can still pinch-zoom freely for accessibility.
+     */
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    function installIOSZoomReset() {
+        if (!isIOS) return;
+        const viewport = document.getElementById('viewport');
+        if (!viewport) return;
+        const original = viewport.getAttribute('content');
+        const clamped = original.replace(/,?\s*maximum-scale=[^,]*/i, '') + ', maximum-scale=1';
+
+        document.addEventListener('focusout', function (e) {
+            const t = e.target;
+            if (!t || !t.matches || !t.matches('input, textarea, select')) return;
+            viewport.setAttribute('content', clamped);
+            requestAnimationFrame(function () {
+                viewport.setAttribute('content', original);
+            });
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('qrcForm');
         if (form) form.addEventListener('submit', handleSubmit);
 
         const toggle = document.getElementById('themeToggle');
         if (toggle) toggle.addEventListener('click', Theme.toggle);
+
+        installIOSZoomReset();
     });
 
     window.addEventListener('beforeunload', function () {

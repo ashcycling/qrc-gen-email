@@ -247,7 +247,12 @@ svg {
     color: var(--text);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    font-size: 0.9rem;
+    /* Must stay >= 16px. iOS Safari auto-zooms into form fields whose
+       computed font-size is below 16px on focus, and modern iOS (>=17, and
+       definitively iOS 26) has disabled every JavaScript path for restoring
+       the zoom on blur (viewport-meta swaps, focus decoys, scroll resets
+       are all ignored). Preventing the zoom-in is the only reliable fix. */
+    font-size: 16px;
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
     appearance: none;
 }

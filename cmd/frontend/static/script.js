@@ -128,28 +128,52 @@
     /**
      * iOS Safari auto-zooms into form fields whose font-size is below 16px on
      * focus, but never restores the zoom on blur. We want both directions to
-     * feel automatic, so when an input loses focus we briefly switch the
-     * viewport meta to maximum-scale=1 (which forces iOS to clamp the zoom
-     * back to 1.0), then restore the original viewport on the next frame so
-     * the user can still pinch-zoom freely for accessibility.
+     * feel automatic, so when an input loses focus we replace the viewport
+     * meta with one that has `maximum-scale=1, user-scalable=no` (forcing iOS
+     * to clamp the page zoom back to 1.0) and then, after Safari has applied
+     * the clamp, swap it back to the zoomable viewport so the user can still
+     * pinch-zoom freely for accessibility.
+     *
+     * Replacing the element (instead of mutating its `content` in place) is
+     * necessary on modern iOS where in-place mutations are sometimes ignored.
      */
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isIOS = (
+        /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    ) && !window.MSStream;
+
+    const VIEWPORT_DEFAULT = 'width=device-width, initial-scale=1, viewport-fit=cover';
+    const VIEWPORT_CLAMPED = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+
+    function setViewport(content) {
+        const old = document.getElementById('viewport');
+        if (!old) return null;
+        const fresh = document.createElement('meta');
+        fresh.id = 'viewport';
+        fresh.name = 'viewport';
+        fresh.setAttribute('content', content);
+        old.parentNode.replaceChild(fresh, old);
+        return fresh;
+    }
+
+    let zoomResetTimer = null;
+
+    function resetIOSZoom() {
+        if (zoomResetTimer) clearTimeout(zoomResetTimer);
+        setViewport(VIEWPORT_CLAMPED);
+        zoomResetTimer = setTimeout(function () {
+            setViewport(VIEWPORT_DEFAULT);
+            zoomResetTimer = null;
+        }, 400);
+    }
 
     function installIOSZoomReset() {
         if (!isIOS) return;
-        const viewport = document.getElementById('viewport');
-        if (!viewport) return;
-        const original = viewport.getAttribute('content');
-        const clamped = original.replace(/,?\s*maximum-scale=[^,]*/i, '') + ', maximum-scale=1';
-
         document.addEventListener('focusout', function (e) {
             const t = e.target;
             if (!t || !t.matches || !t.matches('input, textarea, select')) return;
-            viewport.setAttribute('content', clamped);
-            requestAnimationFrame(function () {
-                viewport.setAttribute('content', original);
-            });
-        });
+            setTimeout(resetIOSZoom, 50);
+        }, true);
     }
 
     document.addEventListener('DOMContentLoaded', function () {

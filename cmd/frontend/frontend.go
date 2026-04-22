@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -34,8 +35,12 @@ func main() {
 
 	log.Printf("Frontend connecting to backend at: %s", *backendURL)
 
-	// Serve embedded static files
-	staticFS := http.FileServer(http.FS(staticFiles))
+	// Serve embedded static files (rooted at the static/ subdirectory of the embed FS)
+	staticSub, err := fs.Sub(staticFiles, "static")
+	if err != nil {
+		log.Fatalf("failed to scope embedded static FS: %v", err)
+	}
+	staticFS := http.FileServer(http.FS(staticSub))
 
 	// Handle static files
 	http.Handle("/static/", http.StripPrefix("/static/", staticFS))

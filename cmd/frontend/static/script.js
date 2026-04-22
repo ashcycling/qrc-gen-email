@@ -1,122 +1,139 @@
-// Load default values when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    setDefaultValues();
-    
-    // Setup form submission
-    document.getElementById('qrcForm').addEventListener('submit', handleFormSubmit);
-});
+(function () {
+    'use strict';
 
-// Set default values for the form
-function setDefaultValues() {
-    // Placeholders are now used instead of default values
-    // No need to set values programmatically
-}
-
-// Handle form submission
-async function handleFormSubmit(e) {
-    e.preventDefault();
-    
-    const submitBtn = document.querySelector('.btn-submit');
-    const responseText = document.getElementById('responseText');
-    
-    // Prepare form data - use placeholder values if fields are empty (except subject which defaults to "")
-    const qrcSizeValue = document.getElementById('qrcSize').value || document.getElementById('qrcSize').placeholder;
-    const mailtoValue = document.getElementById('mailto').value || document.getElementById('mailto').placeholder;
-    const subjectValue = document.getElementById('subject').value; // Subject defaults to empty string
-    
-    // Validate inputs
-    const qrcSize = parseInt(qrcSizeValue);
-    if (isNaN(qrcSize) || qrcSize < 100 || qrcSize > 1000) {
-        responseText.className = 'error';
-        responseText.innerHTML = '<strong>✗ Error:</strong> QR Code Size must be between 100 and 1000';
-        return;
-    }
-    
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(mailtoValue)) {
-        responseText.className = 'error';
-        responseText.innerHTML = '<strong>✗ Error:</strong> Please enter a valid email address';
-        return;
-    }
-    
-    const formData = {
-        qrcSize: qrcSize,
-        mailto: mailtoValue,
-        subject: subjectValue
+    const Theme = {
+        key: 'theme',
+        get current() {
+            return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        },
+        apply(value) {
+            const next = value === 'dark' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem(Theme.key, next); } catch (_) {}
+        },
+        toggle() {
+            Theme.apply(Theme.current === 'dark' ? 'light' : 'dark');
+        },
     };
-    
-    // Disable button and show loading state
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Processing...';
-    responseText.className = 'loading';
-    responseText.textContent = 'Sending request...';
-    
-    console.log('Sending formData:', formData);
-    console.log('Subject value:', subjectValue);
-    
-    try {
-        // Send POST request to the backend
-        const response = await fetch('/api/process', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        });
-        
-        const result = await response.json();
-        
-        // Handle response
-        if (response.ok && result.success) {
-            responseText.className = 'success';
-            responseText.innerHTML = `<strong>✓ Success:</strong> ${result.message}<br><small>Sent: ${JSON.stringify(formData)} | Received: ${JSON.stringify(result.data.received)}</small>`;
-            
-            // Display QR code and trigger download
-            if (result.data && result.data.qrCodeBase64) {
-                // Decode base64 to blob
-                const binaryString = atob(result.data.qrCodeBase64);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
-                }
-                const blob = new Blob([bytes], { type: 'image/png' });
-                
-                // Create object URL for displaying and downloading
-                const imageUrl = URL.createObjectURL(blob);
-                const qrCodeImage = document.getElementById('qrCodeImage');
-                const qrCodeContainer = document.getElementById('qrCodeContainer');
-                qrCodeImage.src = imageUrl;
-                qrCodeContainer.style.display = 'block';
-                
-                // Trigger automatic download
-                const link = document.createElement('a');
-                link.href = imageUrl;
-                link.download = `qr-code-${Date.now()}.png`;
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                // Clean up object URL after a delay
-                setTimeout(() => URL.revokeObjectURL(imageUrl), 100);
-            }
-        } else {
-            responseText.className = 'error';
-            responseText.innerHTML = `
-                <strong>✗ Error:</strong> ${result.message || 'Unknown error'}
-            `;
+
+    let lastObjectUrl = null;
+
+    function setToast(state, message) {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        if (!state) {
+            toast.hidden = true;
+            toast.className = 'toast';
+            toast.textContent = '';
+            return;
         }
-    } catch (error) {
-        responseText.className = 'error';
-        responseText.innerHTML = `
-            <strong>✗ Error:</strong> ${error.message}<br>
-            <small>Failed to communicate with the server</small>
-        `;
-        console.error('Request failed:', error);
-    } finally {
-        // Re-enable button
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Generate & Send';
+        toast.hidden = false;
+        toast.className = 'toast is-' + state;
+        toast.textContent = message;
     }
-}
+
+    function showResult(blobUrl) {
+        const result = document.getElementById('result');
+        const img = document.getElementById('qrCodeImage');
+        const link = document.getElementById('downloadLink');
+        if (!result || !img || !link) return;
+        img.src = blobUrl;
+        link.href = blobUrl;
+        link.download = `qr-code-${Date.now()}.png`;
+        result.hidden = false;
+    }
+
+    function hideResult() {
+        const result = document.getElementById('result');
+        if (result) result.hidden = true;
+    }
+
+    function base64ToBlob(b64, type) {
+        const binary = atob(b64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return new Blob([bytes], { type });
+    }
+
+    function readFormValues() {
+        const sizeInput = document.getElementById('qrcSize');
+        const mailInput = document.getElementById('mailto');
+        const subjectInput = document.getElementById('subject');
+        return {
+            qrcSize: parseInt(sizeInput.value || sizeInput.placeholder, 10),
+            mailto: (mailInput.value || '').trim(),
+            subject: subjectInput.value || '',
+        };
+    }
+
+    function validate({ qrcSize, mailto }) {
+        if (!mailto) return 'Email address is required.';
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(mailto)) return 'Please enter a valid email address.';
+        if (Number.isNaN(qrcSize) || qrcSize < 100 || qrcSize > 1000) {
+            return 'Size must be a number between 100 and 1000.';
+        }
+        return null;
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+        const submitBtn = document.getElementById('submitBtn');
+        const labelEl = submitBtn.querySelector('.btn-label');
+        const originalLabel = labelEl ? labelEl.textContent : 'Generate';
+
+        const values = readFormValues();
+        const validationError = validate(values);
+        if (validationError) {
+            hideResult();
+            setToast('error', validationError);
+            return;
+        }
+
+        submitBtn.disabled = true;
+        if (labelEl) labelEl.textContent = 'Generating…';
+        setToast('loading', 'Generating QR code…');
+        hideResult();
+
+        try {
+            const response = await fetch('/api/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(values),
+            });
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                setToast('error', result.message || 'Request failed.');
+                return;
+            }
+
+            if (result.data && result.data.qrCodeBase64) {
+                if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+                const blob = base64ToBlob(result.data.qrCodeBase64, 'image/png');
+                lastObjectUrl = URL.createObjectURL(blob);
+                showResult(lastObjectUrl);
+                setToast('success', result.message || 'QR code generated.');
+            } else {
+                setToast('success', result.message || 'Done.');
+            }
+        } catch (err) {
+            setToast('error', 'Network error: ' + (err && err.message ? err.message : 'unknown'));
+        } finally {
+            submitBtn.disabled = false;
+            if (labelEl) labelEl.textContent = originalLabel;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('qrcForm');
+        if (form) form.addEventListener('submit', handleSubmit);
+
+        const toggle = document.getElementById('themeToggle');
+        if (toggle) toggle.addEventListener('click', Theme.toggle);
+    });
+
+    window.addEventListener('beforeunload', function () {
+        if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+    });
+})();

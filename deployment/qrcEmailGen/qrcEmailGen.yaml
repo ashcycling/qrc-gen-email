@@ -70,7 +70,7 @@ spec:
     spec:
       containers:
         - name: qrc-gen-front
-          image: ghcr.io/ashcycling/frontend:v0.0.3
+          image: ghcr.io/ashcycling/frontend:v0.0.4
           imagePullPolicy: Always
           env:
           - name: BACKEND_HOST
@@ -122,7 +122,7 @@ spec:
     spec:
       containers:
         - name: back
-          image: ghcr.io/ashcycling/backend:v0.0.3
+          image: ghcr.io/ashcycling/backend:v0.0.4
           imagePullPolicy: Always
           resources:
             requests:

@@ -2,14 +2,17 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 )
+
+//go:embed static/*
+var staticFiles embed.FS
 
 func main() {
 	port := flag.String("port", ":3000", "Port to serve frontend on (e.g., :3000)")
@@ -31,12 +34,11 @@ func main() {
 
 	log.Printf("Frontend connecting to backend at: %s", *backendURL)
 
-	// Serve static files
-	staticDir := filepath.Join(".", "cmd", "frontend", "static")
-	fs := http.FileServer(http.Dir(staticDir))
+	// Serve embedded static files
+	staticFS := http.FileServer(http.FS(staticFiles))
 
 	// Handle static files
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	http.Handle("/static/", http.StripPrefix("/static/", staticFS))
 
 	// Serve index.html for root path
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +46,15 @@ func main() {
 			http.NotFound(w, r)
 			return
 		}
-		http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
+		// Serve embedded index.html
+		data, err := staticFiles.ReadFile("static/index.html")
+		if err != nil {
+			http.Error(w, "Could not load index.html", http.StatusInternalServerError)
+			log.Printf("Error loading index.html: %v", err)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Write(data)
 	})
 
 	// Proxy API requests to backend
